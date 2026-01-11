@@ -16,6 +16,8 @@ import { useMemo } from "react"
 
 interface VoltageChartProps {
   data: Measurement[];
+  startTime: number;
+  endTime: number;
 }
 
 const chartConfig = {
@@ -25,7 +27,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function VoltageChart({ data }: VoltageChartProps) {
+export function VoltageChart({ data, startTime, endTime }: VoltageChartProps) {
   
   const chartData = useMemo(() => {
     return data.map((d) => ({
@@ -47,12 +49,13 @@ export function VoltageChart({ data }: VoltageChartProps) {
       >
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="timestamp"
+          dataKey="rawTimestamp"
+          type="number"
+          domain={[startTime, endTime]}
           tickLine={false}
           axisLine={false}
           tickMargin={8}
           tickFormatter={(value) => {
-             // Simplify tick format if needed, but locale string is fine for now
              const date = new Date(value);
              return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           }}

@@ -19,22 +19,25 @@ function App() {
   const [timeRange, setTimeRange] = useState<TimeRange>("1hr");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewWindow, setViewWindow] = useState<{ start: number; end: number }>({
+    start: Date.now() - 60 * 60 * 1000,
+    end: Date.now(),
+  });
 
-  const getStartDate = (range: TimeRange) => {
-    const now = new Date();
+  const getStartDate = (range: TimeRange, end: Date) => {
     switch (range) {
       case "1m":
-        return new Date(now.getTime() - 1 * 60 * 1000);
+        return new Date(end.getTime() - 1 * 60 * 1000);
       case "15m":
-        return new Date(now.getTime() - 15 * 60 * 1000);
+        return new Date(end.getTime() - 15 * 60 * 1000);
       case "1hr":
-        return new Date(now.getTime() - 60 * 60 * 1000);
+        return new Date(end.getTime() - 60 * 60 * 1000);
       case "6hr":
-        return new Date(now.getTime() - 6 * 60 * 60 * 1000);
+        return new Date(end.getTime() - 6 * 60 * 60 * 1000);
       case "12hr":
-        return new Date(now.getTime() - 12 * 60 * 60 * 1000);
+        return new Date(end.getTime() - 12 * 60 * 60 * 1000);
       default:
-        return new Date(now.getTime() - 60 * 60 * 1000);
+        return new Date(end.getTime() - 60 * 60 * 1000);
     }
   };
 
@@ -43,7 +46,13 @@ function App() {
     setError(null);
     try {
       const now = new Date();
-      const startDate = getStartDate(timeRange);
+      const startDate = getStartDate(timeRange, now);
+
+      setViewWindow({
+        start: startDate.getTime(),
+        end: now.getTime(),
+      });
+
       const measurements = await fetchMeasurements(startDate, now);
       setData(measurements);
     } catch (err) {
@@ -106,7 +115,11 @@ function App() {
                 {error}
               </div>
             ) : (
-               <VoltageChart data={data} />
+                <VoltageChart
+                  data={data}
+                  startTime={viewWindow.start}
+                  endTime={viewWindow.end}
+                />
             )}
           </CardContent>
         </Card>
