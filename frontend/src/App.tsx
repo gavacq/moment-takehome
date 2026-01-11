@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchMeasurements, type Measurement } from "./lib/api";
+import { fetchMeasurements, reseedDatabase, generateLiveMeasurements, type Measurement } from "./lib/api";
 import { VoltageChart } from "./components/VoltageChart";
 import {
   Select,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Zap, Database } from "lucide-react";
 
 type TimeRange = "1m" | "15m" | "1hr" | "6hr" | "12hr";
 
@@ -19,6 +19,7 @@ function App() {
   const [timeRange, setTimeRange] = useState<TimeRange>("1hr");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showReseedConfirm, setShowReseedConfirm] = useState(false);
   const [viewWindow, setViewWindow] = useState<{ start: number; end: number }>({
     start: Date.now() - 60 * 60 * 1000,
     end: Date.now(),
@@ -68,14 +69,52 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
+  const handleReseed = async () => {
+    setLoading(true);
+    try {
+      await reseedDatabase();
+      await loadData();
+    } catch (err) {
+      setError("Failed to reseed database");
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setShowReseedConfirm(false);
+    }
+  };
+
+  const handleGenerateLive = async () => {
+    setLoading(true);
+    try {
+      await generateLiveMeasurements();
+      await loadData();
+    } catch (err) {
+      setError("Failed to generate live measurements");
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-8 font-sans antialiased">
       <div className="mx-auto max-w-5xl space-y-8">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Battery Monitor</h1>
-          <p className="text-muted-foreground">
-            Real-time voltage monitoring dashboard.
-          </p>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Battery Monitor</h1>
+            <p className="text-muted-foreground">
+              Real-time voltage monitoring dashboard.
+            </p>
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={() => setShowReseedConfirm(true)} disabled={loading}>
+              <Database className="mr-2 h-4 w-4" />
+              Reseed DB
+            </Button>
+            <Button variant="default" onClick={handleGenerateLive} disabled={loading}>
+              <Zap className="mr-2 h-4 w-4" />
+              Simulate Live Data
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -124,6 +163,31 @@ function App() {
           </CardContent>
         </Card>
       </div>
+
+      {showReseedConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Confirm Database Reseed</CardTitle>
+              <CardDescription>
+                This action cannot be undone.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Are you sure you want to clear all existing data and reseed the database with mock measurements?</p>
+            </CardContent>
+            <div className="flex justify-end space-x-2 p-6 pt-0">
+              <Button variant="ghost" onClick={() => setShowReseedConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleReseed} disabled={loading}>
+                {loading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Confirm Reseed
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

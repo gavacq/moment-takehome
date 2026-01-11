@@ -138,3 +138,86 @@ export const reseedMeasurements = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+export const generateLiveMeasurements = async (req: Request, res: Response) => {
+  try {
+    const lastMeasurements = await db.query.measurements.findMany({
+      orderBy: [desc(measurements.timestamp)],
+      limit: 2,
+    });
+
+    let currentVoltage = 0;
+    let direction = 1;
+    let lastTimestamp = new Date(Date.now() - 24 * 60 * 60 * 1000); // Default to 24h ago if empty
+
+    if (lastMeasurements.length > 0) {
+      currentVoltage = lastMeasurements[0].voltage;
+      lastTimestamp = lastMeasurements[0].timestamp;
+
+      if (lastMeasurements.length > 1) {
+        direction = lastMeasurements[0].voltage >= lastMeasurements[1].voltage ? 1 : -1;
+      }
+      // If at boundaries, force direction
+      if (currentVoltage >= 5) direction = -1;
+      if (currentVoltage <= 0) direction = 1;
+    }
+
+    const now = new Date();
+    // Start from the next interval after the last timestamp
+    const nextIntervalTime = new Date(lastTimestamp.getTime() + 10000); // 10s after last
+
+    if (nextIntervalTime > now) {
+      return res.json({
+        message: 'Data is already up to date',
+        recordsCreated: 0
+      });
+    }
+
+    const INTERVAL_SECONDS = 10;
+    const totalSteps = Math.floor((now.getTime() - lastTimestamp.getTime()) / 1000 / INTERVAL_SECONDS);
+    const MAX_VOLTAGE = 5;
+    const VOLTAGE_STEP = 0.01;
+
+    const valuesBatch = [];
+    const BATCH_SIZE = 1000;
+
+    for (let i = 1; i <= totalSteps; i++) {
+      const timestamp = new Date(lastTimestamp.getTime() + i * INTERVAL_SECONDS * 1000);
+
+      currentVoltage += direction * VOLTAGE_STEP;
+
+      if (currentVoltage >= MAX_VOLTAGE) {
+        currentVoltage = MAX_VOLTAGE;
+        direction = -1;
+      } else if (currentVoltage <= 0) {
+        currentVoltage = 0;
+        direction = 1;
+      }
+
+      valuesBatch.push({
+        voltage: Number(currentVoltage.toFixed(2)),
+        timestamp,
+      });
+
+      if (valuesBatch.length >= BATCH_SIZE) {
+        await db.insert(measurements).values(valuesBatch);
+        valuesBatch.length = 0;
+      }
+    }
+
+    if (valuesBatch.length > 0) {
+      await db.insert(measurements).values(valuesBatch);
+    }
+
+    res.json({
+      message: 'Live data generated successfully',
+      recordsCreated: totalSteps,
+      startTime: nextIntervalTime.toISOString(),
+      endTime: now.toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error generating live measurements:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

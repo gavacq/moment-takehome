@@ -23,3 +23,23 @@ export const fetchMeasurements = async (start?: Date, end?: Date): Promise<Measu
 
   return response.json();
 };
+
+export const reseedDatabase = async (): Promise<void> => {
+  const response = await fetch(`${API_URL}/measurements/reseed`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to reseed database');
+  }
+};
+
+export const generateLiveMeasurements = async (): Promise<void> => {
+  const response = await fetch(`${API_URL}/measurements/generate-live`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate live measurements');
+  }
+};
