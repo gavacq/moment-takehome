@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: moment-postgres
+    environment:
+      POSTGRES_USER: moment
+      POSTGRES_PASSWORD: moment_dev_password
+      POSTGRES_DB: moment_takehome
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moment"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: moment-backend
+    environment:
+      DATABASE_URL: postgresql://moment:moment_dev_password@db:5432/moment_takehome
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/src:/workspace/backend/src
+      - ./backend/drizzle:/workspace/backend/drizzle
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "pnpm db:migrate && pnpm db:seed && pnpm dev"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: moment-frontend
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/workspace/frontend/src
+      - ./frontend/public:/workspace/frontend/public
+    depends_on:
+      - backend
+    command: pnpm dev --host
+
+volumes:
+  postgres_data:

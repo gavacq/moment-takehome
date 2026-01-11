@@ -1,0 +1,3 @@
+ - use pnpm
+ - use -y flag for any pnpm commands
+ - create with rolldown-vite

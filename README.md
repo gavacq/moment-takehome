@@ -6,15 +6,16 @@ This is a takehome challenge for the Moment Energy Fullstack Developer position.
 
 ## Technologies
 
-- React
-- TypeScript
-- shadcn ui
-- tailwindcss
-- shadcn charts
-- Node.js
-- Express
-- drizzle-orm
-- hosting on render
+- React latest
+- TypeScript latest
+- shadcn ui latest
+- tailwindcss v4
+- shadcn charts latest
+- Node.js v22.12.0
+- Express latest
+- drizzle-orm latest
+- hosting on render.com
+- pnpm v10.12.1
 
 ## API
 
@@ -60,3 +61,84 @@ As a user I can:
 ## Other requirements
 - add basic logging
 - add basic testing with vitest
+
+## How to Run Locally
+
+### Option 1: Docker Compose (Recommended)
+
+#### Prerequisites
+- Docker and Docker Compose
+
+#### Steps
+
+1.  **Start all services:**
+    ```bash
+    docker compose up
+    ```
+    
+    This will:
+    - Start PostgreSQL database
+    - Run database migrations and seed data
+    - Start the backend API on `http://localhost:3000`
+    - Start the frontend on `http://localhost:5173`
+
+2.  **Open the App:**
+    - Open your browser and visit `http://localhost:5173`
+
+3.  **Stop services:**
+    ```bash
+    docker compose down
+    ```
+
+4.  **Clean up (remove database volume):**
+    ```bash
+    docker compose down -v
+    ```
+
+### Option 2: Manual Setup
+
+#### Prerequisites
+- Node.js v22.12.0
+- pnpm v10.12.1
+- PostgreSQL database
+
+#### Steps
+
+1.  **Install dependencies:**
+    ```bash
+    pnpm install
+    ```
+
+2.  **Setup Backend:**
+    - Navigate to `backend` directory: `cd backend`
+    - Create a `.env` file (copy from `.env.example`) and configure your `DATABASE_URL`.
+    - Generate migration files:
+      ```bash
+      pnpm db:generate
+      ```
+    - Apply migrations:
+      ```bash
+      pnpm db:migrate
+      ```
+    - Seed the database:
+      ```bash
+      pnpm db:seed
+      ```
+    - Start the backend server:
+      ```bash
+      pnpm dev
+      ```
+    - Run tests:
+        ```bash
+        pnpm test
+        ```
+
+3.  **Setup Frontend:**
+    - Navigate to `frontend` directory: `cd frontend`
+    - Start the development server:
+      ```bash
+      pnpm dev
+      ```
+
+4.  **Open the App:**
+    - Open your browser and visit `http://localhost:5173`.
