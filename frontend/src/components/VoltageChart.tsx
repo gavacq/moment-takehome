@@ -69,7 +69,17 @@ export function VoltageChart({ data, startTime, endTime }: VoltageChartProps) {
         />
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent indicator="line" />}
+          content={
+            <ChartTooltipContent
+              indicator="line"
+              labelFormatter={(_, payload) => {
+                if (payload && payload.length > 0 && payload[0].payload.timestamp) {
+                  return payload[0].payload.timestamp;
+                }
+                return "";
+              }}
+            />
+          }
         />
         <Area
           dataKey="voltage"
