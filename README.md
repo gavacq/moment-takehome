@@ -240,15 +240,7 @@ This project includes a `render.yaml` blueprint file for easy deployment to Rend
    - Once deployed, you'll receive URLs for both services
    - The frontend URL will be something like: `https://moment-takehome-frontend.onrender.com`
    - The backend URL will be something like: `https://moment-takehome-backend.onrender.com`
-
-6. **Configure Frontend API URL:**
-   - Go to the `moment-takehome-frontend` service in your Render Dashboard
-   - Navigate to "Environment" tab
-   - Add a new environment variable:
-     - Key: `VITE_API_URL`
-     - Value: `https://moment-takehome-backend.onrender.com/api` (replace with your actual backend URL)
-   - Click "Save Changes"
-   - The frontend will automatically redeploy with the new configuration
+   - The frontend will automatically connect to the backend via the configured `VITE_API_URL`
 
 ### Post-Deployment
 

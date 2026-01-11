@@ -5,12 +5,11 @@ This document provides details about the Render.com blueprint configuration for 
 ## Services Overview
 
 ### 1. PostgreSQL Database (`moment-takehome-db`)
-- **Type**: PostgreSQL database
+- **Type**: PostgreSQL database (defined in `databases:` section)
 - **Plan**: Starter
 - **Region**: Oregon
 - **Database Name**: `moment_takehome`
 - **Database User**: `moment_user`
-- **Access**: Internal only (empty IP allow list)
 
 ### 2. Backend API (`moment-takehome-backend`)
 - **Type**: Web service
@@ -43,7 +42,7 @@ This document provides details about the Render.com blueprint configuration for 
   - Builds React app with Vite
 - **Publish Directory**: `frontend/dist`
 - **Environment Variables**:
-  - `VITE_API_URL` (must be manually configured after deployment)
+  - `VITE_API_URL` (automatically set to `${moment-takehome-backend.url}/api`)
 - **Routing**: SPA routing with rewrite rules for client-side routing
 
 ## Deployment Flow
@@ -69,12 +68,10 @@ This document provides details about the Render.com blueprint configuration for 
 - To preserve data between deployments, comment out the seed command
 
 ### Environment Variables
-- Backend environment variables are automatically configured via the blueprint
-- The frontend's `VITE_API_URL` must be manually set after initial deployment:
-  1. Go to the frontend service in Render Dashboard
-  2. Navigate to "Environment" tab
-  3. Add `VITE_API_URL` with value: `https://moment-takehome-backend.onrender.com/api`
-  4. Save and redeploy
+- All environment variables are automatically configured via the blueprint
+- The frontend's `VITE_API_URL` is automatically set to `${moment-takehome-backend.url}/api`
+- The backend's `DATABASE_URL` is automatically connected to the PostgreSQL database
+- No manual configuration needed after initial deployment
 
 ### Monorepo Support
 - The blueprint handles the pnpm workspace structure

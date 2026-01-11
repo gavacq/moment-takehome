@@ -1,13 +1,4 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: moment-takehome-db
-    plan: starter
-    region: oregon
-    databaseName: moment_takehome
-    databaseUser: moment_user
-    ipAllowList: []
-
   # Backend API Service
   - type: web
     name: moment-takehome-backend
@@ -50,8 +41,17 @@ services:
       cd frontend
       pnpm build
     staticPublishPath: frontend/dist
-    # Note: Set VITE_API_URL manually in Render dashboard to: https://moment-takehome-backend.onrender.com/api
+    envVars:
+      - key: VITE_API_URL
+        value: ${moment-takehome-backend.url}/api
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
+databases:
+  - name: moment-takehome-db
+    databaseName: moment_takehome
+    user: moment_user
+    plan: starter
+    region: oregon
