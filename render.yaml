@@ -4,7 +4,7 @@ services:
     name: moment-takehome-backend
     runtime: node
     region: oregon
-    plan: starter
+    plan: free
     buildCommand: |
       corepack enable
       corepack prepare pnpm@10.12.1 --activate
@@ -32,7 +32,7 @@ services:
   - type: web
     name: moment-takehome-frontend
     runtime: static
-    plan: starter
+    plan: free
     buildCommand: |
       corepack enable
       corepack prepare pnpm@10.12.1 --activate
@@ -52,5 +52,5 @@ databases:
   - name: moment-takehome-db
     databaseName: moment_takehome
     user: moment_user
-    plan: starter
+    plan: free
     region: oregon
