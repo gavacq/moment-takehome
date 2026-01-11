@@ -199,3 +199,90 @@ pnpm post-data
 
 This will continuously post new voltage measurements every 10 seconds. Leave it running in a separate terminal, then use the refresh button in the UI to see new data appear.
 
+## Deployment to Render.com
+
+This project includes a `render.yaml` blueprint file for easy deployment to Render.com.
+
+### Prerequisites
+- A [Render.com](https://render.com) account
+- A GitHub repository with this code
+
+### Deployment Steps
+
+1. **Push your code to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Add Render.com blueprint"
+   git push origin main
+   ```
+
+2. **Create a new Blueprint Instance on Render:**
+   - Go to your [Render Dashboard](https://dashboard.render.com/)
+   - Click "New" → "Blueprint"
+   - Connect your GitHub repository
+   - Select the repository containing this project
+   - Render will automatically detect the `render.yaml` file
+
+3. **Review and Deploy:**
+   - Review the services that will be created:
+     - `moment-takehome-db` - PostgreSQL database
+     - `moment-takehome-backend` - Backend API service
+     - `moment-takehome-frontend` - Frontend static site
+   - Click "Apply" to create all services
+
+4. **Wait for Deployment:**
+   - The database will be created first
+   - The backend will build, run migrations, and seed the database
+   - The frontend will build and deploy
+   - This may take 5-10 minutes for the first deployment
+
+5. **Access Your Application:**
+   - Once deployed, you'll receive URLs for both services
+   - The frontend URL will be something like: `https://moment-takehome-frontend.onrender.com`
+   - The backend URL will be something like: `https://moment-takehome-backend.onrender.com`
+
+6. **Configure Frontend API URL:**
+   - Go to the `moment-takehome-frontend` service in your Render Dashboard
+   - Navigate to "Environment" tab
+   - Add a new environment variable:
+     - Key: `VITE_API_URL`
+     - Value: `https://moment-takehome-backend.onrender.com/api` (replace with your actual backend URL)
+   - Click "Save Changes"
+   - The frontend will automatically redeploy with the new configuration
+
+### Post-Deployment
+
+#### Reseed Data
+To refresh the database with current timestamps after deployment:
+
+```bash
+curl -X POST https://moment-takehome-backend.onrender.com/api/measurements/reseed
+```
+
+#### Environment Variables
+The blueprint automatically configures:
+- `DATABASE_URL` - Connected to the PostgreSQL database
+- `VITE_API_URL` - Frontend points to the backend API
+- `PORT` - Backend runs on port 3000
+- `NODE_ENV` - Set to production
+
+#### Monitoring
+- Check service logs in the Render Dashboard
+- Health check endpoint: `https://moment-takehome-backend.onrender.com/health`
+
+### Updating Your Deployment
+
+To deploy updates:
+```bash
+git add .
+git commit -m "Your update message"
+git push origin main
+```
+
+Render will automatically detect the changes and redeploy your services.
+
+### Cost Considerations
+- The blueprint uses "starter" plans for all services
+- Free tier is available but services may spin down after inactivity
+- Upgrade to paid plans for always-on services and better performance
+
