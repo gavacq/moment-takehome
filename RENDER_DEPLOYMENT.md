@@ -42,7 +42,7 @@ This document provides details about the Render.com blueprint configuration for 
   - Builds React app with Vite
 - **Publish Directory**: `frontend/dist`
 - **Environment Variables**:
-  - `VITE_API_URL` (automatically set to `${moment-takehome-backend.url}/api`)
+  - `VITE_API_URL` (must be manually configured after backend deployment)
 - **Routing**: SPA routing with rewrite rules for client-side routing
 
 ## Deployment Flow
@@ -68,10 +68,14 @@ This document provides details about the Render.com blueprint configuration for 
 - To preserve data between deployments, comment out the seed command
 
 ### Environment Variables
-- All environment variables are automatically configured via the blueprint
-- The frontend's `VITE_API_URL` is automatically set to `${moment-takehome-backend.url}/api`
-- The backend's `DATABASE_URL` is automatically connected to the PostgreSQL database
-- No manual configuration needed after initial deployment
+- Backend environment variables are automatically configured via the blueprint
+- The frontend's `VITE_API_URL` **must be manually configured** after deployment:
+  1. Wait for the backend service to deploy and get its URL
+  2. Go to the frontend service in Render Dashboard
+  3. Navigate to "Environment" tab
+  4. Add `VITE_API_URL` with value: `https://moment-takehome-backend.onrender.com/api`
+  5. Save changes - the frontend will automatically redeploy
+- Note: Render's `${service.url}` syntax doesn't work for static site build-time environment variables
 
 ### Monorepo Support
 - The blueprint handles the pnpm workspace structure

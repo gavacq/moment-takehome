@@ -39,9 +39,8 @@ services:
       cd frontend
       pnpm build
     staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: ${moment-takehome-backend.url}/api
+    # IMPORTANT: After backend is deployed, manually add environment variable in Render dashboard:
+    # VITE_API_URL = https://moment-takehome-backend.onrender.com/api
     routes:
       - type: rewrite
         source: /*
