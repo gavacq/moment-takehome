@@ -42,8 +42,9 @@ function App() {
     setLoading(true);
     setError(null);
     try {
+      const now = new Date();
       const startDate = getStartDate(timeRange);
-      const measurements = await fetchMeasurements(startDate);
+      const measurements = await fetchMeasurements(startDate, now);
       setData(measurements);
     } catch (err) {
       setError("Failed to fetch data");

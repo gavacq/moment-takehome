@@ -19,10 +19,41 @@ This is a takehome challenge for the Moment Energy Fullstack Developer position.
 
 ## API
 
-- Receive and store a voltage measurement, consisting of both a voltage and a
-timestamp.
-- The ability to query all voltage measurements taken after a provided timestamp. The response shall consist of a list of objects containing both the voltage value
-and the corresponding timestamp, starting from the earliest timestamp.
+### Endpoints
+
+#### POST /api/measurements
+Receive and store a voltage measurement, consisting of both a voltage and a timestamp.
+
+**Request Body:**
+```json
+{
+  "voltage": 3.5,
+  "timestamp": "2026-01-11T13:00:00.000Z"
+}
+```
+
+#### GET /api/measurements
+Query voltage measurements within a time range.
+
+**Query Parameters:**
+- `start` (optional): ISO 8601 timestamp - get measurements after this time
+- `end` (optional): ISO 8601 timestamp - get measurements before this time
+
+**Response:** Array of measurement objects with voltage and timestamp, ordered by timestamp.
+
+#### POST /api/measurements/reseed
+Repopulate the database with 24 hours of mock data ending at the current time. Useful for demos.
+
+**Response:**
+```json
+{
+  "message": "Database reseeded successfully",
+  "recordsCreated": 8640,
+  "startTime": "2026-01-10T13:00:00.000Z",
+  "endTime": "2026-01-11T13:00:00.000Z"
+}
+```
+
 
 
 ## Database
@@ -142,3 +173,29 @@ As a user I can:
 
 4.  **Open the App:**
     - Open your browser and visit `http://localhost:5173`.
+
+## Demo Features
+
+### Reseed Data for Demo
+To refresh the database with current timestamps (useful before a demo):
+
+```bash
+curl -X POST http://localhost:3000/api/measurements/reseed
+```
+
+Or from the backend directory:
+```bash
+cd backend
+pnpm db:seed
+```
+
+### Post Live Data
+To demonstrate the refresh functionality with live data being added:
+
+```bash
+cd backend
+pnpm post-data
+```
+
+This will continuously post new voltage measurements every 10 seconds. Leave it running in a separate terminal, then use the refresh button in the UI to see new data appear.
+

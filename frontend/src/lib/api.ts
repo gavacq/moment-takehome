@@ -6,10 +6,13 @@ export interface Measurement {
   timestamp: string;
 }
 
-export const fetchMeasurements = async (after?: Date): Promise<Measurement[]> => {
+export const fetchMeasurements = async (start?: Date, end?: Date): Promise<Measurement[]> => {
   const params = new URLSearchParams();
-  if (after) {
-    params.append('after', after.toISOString());
+  if (start) {
+    params.append('start', start.toISOString());
+  }
+  if (end) {
+    params.append('end', end.toISOString());
   }
 
   const response = await fetch(`${API_URL}/measurements?${params.toString()}`);
