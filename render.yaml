@@ -32,7 +32,6 @@ services:
   - type: web
     name: moment-takehome-frontend
     runtime: static
-    plan: free
     buildCommand: |
       corepack enable
       corepack prepare pnpm@10.12.1 --activate
