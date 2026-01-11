@@ -32,7 +32,6 @@ services:
   - type: web
     name: moment-takehome-frontend
     runtime: static
-    region: oregon
     plan: starter
     buildCommand: |
       corepack enable
