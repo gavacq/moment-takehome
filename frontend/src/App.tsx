@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchMeasurements, reseedDatabase, generateLiveMeasurements, type Measurement } from "./lib/api";
 import { VoltageChart } from "./components/VoltageChart";
+import { Navbar } from "./components/Navbar";
 import {
   Select,
   SelectContent,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { RefreshCw, Zap, Database } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 type TimeRange = "1m" | "15m" | "1hr" | "6hr" | "12hr";
 
@@ -96,42 +97,40 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8 font-sans antialiased">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">Battery Monitor</h1>
-            <p className="text-muted-foreground">
-              Real-time voltage monitoring dashboard.
-            </p>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={() => setShowReseedConfirm(true)} disabled={loading}>
-              <Database className="mr-2 h-4 w-4" />
-              Reseed DB
-            </Button>
-            <Button variant="default" onClick={handleGenerateLive} disabled={loading}>
-              <Zap className="mr-2 h-4 w-4" />
-              Simulate Live Data
-            </Button>
-          </div>
+    <div className="min-h-screen bg-background font-sans antialiased">
+      <Navbar
+        onReseed={() => setShowReseedConfirm(true)}
+        onGenerateLive={handleGenerateLive}
+        loading={loading}
+      />
+
+      <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Page header */}
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Voltage Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
+            Real-time voltage monitoring for your battery systems.
+          </p>
         </div>
 
+        {/* Chart card */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
                 <CardTitle>Voltage Levels</CardTitle>
                 <CardDescription>
                   Showing voltage measurements for the last {timeRange}.
                 </CardDescription>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Select
                   value={timeRange}
                   onValueChange={(value) => setTimeRange(value as TimeRange)}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Select time range" />
                   </SelectTrigger>
                   <SelectContent>
@@ -150,7 +149,7 @@ function App() {
           </CardHeader>
           <CardContent>
             {error ? (
-              <div className="flex h-[400px] items-center justify-center text-red-500">
+              <div className="flex h-[300px] sm:h-[400px] items-center justify-center text-red-500">
                 {error}
               </div>
             ) : (
@@ -162,7 +161,7 @@ function App() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </main>
 
       {showReseedConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
