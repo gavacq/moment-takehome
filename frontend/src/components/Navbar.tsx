@@ -1,14 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Database, Zap, Menu, X } from "lucide-react";
+import { Database, Menu, X, Play, Square } from "lucide-react";
 import { useState } from "react";
 
 interface NavbarProps {
   onReseed: () => void;
-  onGenerateLive: () => void;
+  onToggleSimulation: () => void;
+  isSimulating: boolean;
   loading: boolean;
 }
 
-export function Navbar({ onReseed, onGenerateLive, loading }: NavbarProps) {
+export function Navbar({ onReseed, onToggleSimulation, isSimulating, loading }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -39,14 +40,23 @@ export function Navbar({ onReseed, onGenerateLive, loading }: NavbarProps) {
               Reseed DB
             </Button>
             <Button
-              variant="default"
-              onClick={onGenerateLive}
+              variant={isSimulating ? "destructive" : "default"}
+              onClick={onToggleSimulation}
               disabled={loading}
               size="sm"
-              className="bg-accent hover:bg-accent/90"
+              className={isSimulating ? "" : "bg-[#4880e5] hover:bg-[#3a6bc7]"}
             >
-              <Zap className="mr-2 h-4 w-4" />
-              Simulate Live Data
+              {isSimulating ? (
+                <>
+                  <Square className="mr-2 h-4 w-4" />
+                  Stop Simulation
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Start Simulation
+                </>
+              )}
             </Button>
           </div>
 
@@ -85,16 +95,25 @@ export function Navbar({ onReseed, onGenerateLive, loading }: NavbarProps) {
               Reseed DB
             </Button>
             <Button
-              variant="default"
+              variant={isSimulating ? "destructive" : "default"}
               onClick={() => {
-                onGenerateLive();
+                onToggleSimulation();
                 setMobileMenuOpen(false);
               }}
               disabled={loading}
-              className="w-full justify-center bg-accent hover:bg-accent/90"
+              className={isSimulating ? "w-full justify-center" : "w-full justify-center bg-[#4880e5] hover:bg-[#3a6bc7]"}
             >
-              <Zap className="mr-2 h-4 w-4" />
-              Simulate Live Data
+              {isSimulating ? (
+                <>
+                  <Square className="mr-2 h-4 w-4" />
+                  Stop Simulation
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Start Simulation
+                </>
+              )}
             </Button>
           </div>
         </div>

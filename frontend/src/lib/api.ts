@@ -43,3 +43,19 @@ export const generateLiveMeasurements = async (): Promise<void> => {
     throw new Error('Failed to generate live measurements');
   }
 };
+export const postMeasurement = async (voltage: number, timestamp: Date): Promise<Measurement> => {
+  const response = await fetch(`${API_URL}/measurements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      voltage,
+      timestamp: timestamp.toISOString(),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to post measurement');
+  }
+
+  return response.json();
+};

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { fetchMeasurements, reseedDatabase, generateLiveMeasurements, type Measurement } from "./lib/api";
+import { fetchMeasurements, reseedDatabase, type Measurement } from "./lib/api";
 import { VoltageChart } from "./components/VoltageChart";
 import { Navbar } from "./components/Navbar";
+import { useVoltageSimulator } from "./hooks/useVoltageSimulator";
 import {
   Select,
   SelectContent,
@@ -20,11 +21,15 @@ function App() {
   const [timeRange, setTimeRange] = useState<TimeRange>("1hr");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [showReseedConfirm, setShowReseedConfirm] = useState(false);
   const [viewWindow, setViewWindow] = useState<{ start: number; end: number }>({
     start: Date.now() - 60 * 60 * 1000,
     end: Date.now(),
   });
+
+  const lastVoltage = data.length > 0 ? data[data.length - 1].voltage : 5.0;
+  const { isSimulating, startSimulation, stopSimulation } = useVoltageSimulator(lastVoltage);
 
   const getStartDate = (range: TimeRange, end: Date) => {
     switch (range) {
@@ -70,6 +75,19 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
+  // Auto-refresh data when enabled or simulation is running
+  useEffect(() => {
+    let interval: any;
+    if (autoRefresh || isSimulating) {
+      interval = setInterval(() => {
+        loadData();
+      }, 2000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [autoRefresh, isSimulating]);
+
   const handleReseed = async () => {
     setLoading(true);
     try {
@@ -84,15 +102,11 @@ function App() {
     }
   };
 
-  const handleGenerateLive = async () => {
-    setLoading(true);
-    try {
-      await generateLiveMeasurements();
-      await loadData();
-    } catch (err) {
-      setError("Failed to generate live measurements");
-      console.error(err);
-      setLoading(false);
+  const handleToggleSimulation = async () => {
+    if (isSimulating) {
+      stopSimulation();
+    } else {
+      startSimulation();
     }
   };
 
@@ -100,7 +114,8 @@ function App() {
     <div className="min-h-screen bg-background font-sans antialiased">
       <Navbar
         onReseed={() => setShowReseedConfirm(true)}
-        onGenerateLive={handleGenerateLive}
+        onToggleSimulation={handleToggleSimulation}
+        isSimulating={isSimulating}
         loading={loading}
       />
 
@@ -141,8 +156,22 @@ function App() {
                     <SelectItem value="12hr">Last 12 Hours</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="icon" onClick={loadData} disabled={loading}>
-                  <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                <Button
+                  variant={autoRefresh || isSimulating ? "secondary" : "outline"}
+                  size="icon"
+                  onClick={() => {
+                    const next = !autoRefresh;
+                    setAutoRefresh(next);
+                    if (next) loadData();
+                  }}
+                  className={autoRefresh || isSimulating ? "bg-accent/20 text-accent-foreground border-accent/50" : ""}
+                  title={autoRefresh || isSimulating ? "Disable Auto-refresh" : "Enable Auto-refresh"}
+                  disabled={loading || isSimulating}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${loading ? "animate-spin" : (autoRefresh || isSimulating) ? "animate-spin-slow" : ""
+                      }`}
+                  />
                 </Button>
               </div>
             </div>
