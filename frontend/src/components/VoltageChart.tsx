@@ -87,6 +87,12 @@ export function VoltageChart({ data, startTime, endTime }: VoltageChartProps) {
           fill="var(--color-voltage)"
           fillOpacity={0.4}
           stroke="var(--color-voltage)"
+          activeDot={{
+            r: 4,
+            fill: "#fff",
+            stroke: "#fff",
+            strokeWidth: 2,
+          }}
         />
       </AreaChart>
     </ChartContainer>
