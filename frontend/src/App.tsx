@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchMeasurements, reseedDatabase, type Measurement } from "./lib/api";
 import { VoltageChart } from "./components/VoltageChart";
 import { Navbar } from "./components/Navbar";
@@ -48,7 +48,7 @@ function App() {
     }
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -68,7 +68,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
 
   useEffect(() => {
     loadData();
