@@ -123,10 +123,10 @@ function App() {
         {/* Page header */}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Voltage Dashboard
+            Dashboard
           </h1>
           <p className="text-sm text-muted-foreground sm:text-base">
-            Real-time voltage monitoring for your battery systems.
+            Real-time monitoring for your battery energy storage system.
           </p>
         </div>
 
