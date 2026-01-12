@@ -133,6 +133,15 @@ function App() {
         {/* Chart card */}
         <Card>
           <CardHeader className="space-y-4">
+            {/* Battery Voltage Display */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Battery Voltage:</span>
+              <span className="font-medium text-foreground">
+                {lastVoltage.toFixed(2)}V
+              </span>
+              <span className="text-muted-foreground/60">({((lastVoltage / 5.0) * 100).toFixed(1)}%)</span>
+            </div>
+
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <CardTitle>Voltage Levels</CardTitle>
