@@ -86,7 +86,7 @@ function App() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [autoRefresh, isSimulating]);
+  }, [autoRefresh, isSimulating, timeRange]);
 
   const handleReseed = async () => {
     setLoading(true);
